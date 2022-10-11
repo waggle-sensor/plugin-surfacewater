@@ -1,37 +1,39 @@
 import torch
 from torchvision import transforms
 
-import argpares
+import argparse
 
-import waggle.plugin as plugin
-from waggle.data import open_data_source
+from waggle.plugin import Plugin
+from waggle.data.vision import Camera
 
-TOPIC_SURFACEWATER = "env.coverage.cloud"
+TOPIC_SURFACEWATER = "env.binary.surfacewater"
 
-def get_args()
+def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-debug', dest='debug',
-        action='store_true', default=False,
-        help='Debug flag')
+        '-stream', dest='stream',
+        action='store', default="bottom",
+        help='ID or name of a stream, e.g. sample')
     parser.add_argument(
         '-model', dest='model',
         action='store', required=True,
         help='Path to model')
     parser.add_argument(
-        '-interval', dest='interval',
-        action='store', default=0, type=int,
-        help='Inference interval in seconds')
+        '-continuous', dest='continuous',
+        action='store_true', default=False, type=bool)
     parser.add_argument(
         '-sampling-interval', dest='sampling_interval',
         action='store', default=-1, type=int,
         help='Sampling interval between inferencing')
+    parser.add_argument(
+        '-debug', dest='debug',
+        action='store_true', default=False,
+        help='Debug flag')
+
     return parser.parse_args()
 
 
-def run(model, i, yes, no, n, w):
-    camera = Camera(args.stream)
-    sample = camera.snapshot()
+def run(model, sample, do_sampling):
     image = sample.data
     timestamp = sample.timestamp
 
@@ -49,17 +51,31 @@ def run(model, i, yes, no, n, w):
     elif result == 1:
         print('water')
 
-    plugin.publish(TOPIC_SURFACEWATER, result, timestamp=timestamp)
-    print(f"Standing Water: {result} at time: {timestamp}")
-    cv2.imwrite('street.jpg', image)
-    plugin.upload_file('street.jpg')
-    print('saved')
+    with Plugin() as plugin:
+        plugin.publish(TOPIC_SURFACEWATER, result.item(), timestamp=timestamp)
+        print(f"Standing Water: {result} at time: {timestamp}")
+
+        if do_sampling:
+            cv2.imwrite('street.jpg', image)
+            plugin.upload_file('street.jpg')
+            print('saved')
 
 
 if __name__ == '__main__':
     args = get_args()
     model = torch.load(args.model)
 
+    with Camera(args.stream) as camera:
+        sample = camera.snapshot()
+
     while True:
-        run(model, i)
-        exit(0)   ## oneshot
+        do_sampling = False
+        if sampling_countdown > 0:
+            sampling_countdown -= 1
+        elif sampling_countdown == 0:
+            do_sampling = True
+            sampling_countdown = args.sampling_interval
+
+        run(model, sample, do_sampling)
+        if not continuous:
+            exit(0)   ## oneshot
