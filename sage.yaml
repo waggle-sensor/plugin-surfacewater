@@ -7,7 +7,7 @@ collaborators: "Waggle Team <https://wa8.gl>"
 funding:
 license: "The license agreed by Argonne National Laboratory"
 keywords: "surface water detection, machine learning"
-homepage: "https://github.com/waggle-sensor/surface-water-classifier/"
+homepage: "https://github.com/waggle-sensor/surface-water-classifier/blob/main/ecr-meta/ecr-science-description.md"
 source:
     architectures:
         - "linux/arm64"
