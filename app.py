@@ -35,6 +35,7 @@ def get_args():
 
 def run(model, sample, do_sampling):
     image = sample.data
+    image = image[250:850, 300:1200]
     timestamp = sample.timestamp
 
     transformation = transforms.Compose([transforms.Resize((224,224)),
