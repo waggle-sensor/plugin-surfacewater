@@ -1,0 +1,29 @@
+name: "surface_water_classifier"
+namespace: "waggle"
+version: "0.0.1"
+description: "Surface Water Classifier"
+authors: "Seongha Park <seongha.park@anl.gov>"
+collaborators: "Waggle Team <https://wa8.gl>"
+funding:
+license: "The license agreed by Argonne National Laboratory"
+keywords: "surface water detection, machine learning"
+homepage: "https://github.com/waggle-sensor/surface-water-classifier/"
+source:
+    architectures:
+        - "linux/arm64"
+        - "linux/amd64"
+    url: "https://github.com/waggle-sensor/surface-water-classifier.git"
+    branch: "main"
+inputs:
+    - id: "stream"
+      type: "string"
+    - id: "model"
+      type: "string"
+    - id: "continuous"
+      type: "boolean"
+    - id: "sampling-interval"
+      type: "int"
+    - id: "debug"
+      type: "boolean"
+metadata:
+  ontology: env.binary.surfacewater
