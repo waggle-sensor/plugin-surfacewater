@@ -33,7 +33,7 @@ def get_args():
     return parser.parse_args()
 
 
-def run(model, sample, do_sampling):
+def run(model, sample, do_sampling, plugin):
     image = sample.data
     image = image[250:850, 300:1200]
     timestamp = sample.timestamp
@@ -52,31 +52,32 @@ def run(model, sample, do_sampling):
     elif result == 1:
         print('water')
 
-    with Plugin() as plugin:
-        plugin.publish(TOPIC_SURFACEWATER, result.item(), timestamp=timestamp)
-        print(f"Standing Water: {result} at time: {timestamp}")
+    plugin.publish(TOPIC_SURFACEWATER, result.item(), timestamp=timestamp)
+    print(f"Standing Water: {result} at time: {timestamp}")
 
-        if do_sampling:
-            cv2.imwrite('street.jpg', image)
-            plugin.upload_file('street.jpg')
-            print('saved')
+    if do_sampling:
+        cv2.imwrite('street.jpg', image)
+        plugin.upload_file('street.jpg')
+        print('saved')
 
 
 if __name__ == '__main__':
     args = get_args()
     model = torch.load(args.model)
 
-    with Camera(args.stream) as camera:
-        sample = camera.snapshot()
-
     while True:
-        do_sampling = False
-        if sampling_countdown > 0:
-            sampling_countdown -= 1
-        elif sampling_countdown == 0:
-            do_sampling = True
-            sampling_countdown = args.sampling_interval
 
-        run(model, sample, do_sampling)
-        if not continuous:
-            exit(0)   ## oneshot
+        with Plugin() as plugin:
+            with Camera(args.stream) as camera:
+                sample = camera.snapshot()
+
+            do_sampling = False
+            if sampling_countdown > 0:
+                sampling_countdown -= 1
+            elif sampling_countdown == 0:
+                do_sampling = True
+                sampling_countdown = args.sampling_interval
+
+            run(model, sample, do_sampling, plugin)
+            if not continuous:
+                exit(0)   ## oneshot
