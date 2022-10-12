@@ -20,7 +20,8 @@ def get_args():
         help='Path to model')
     parser.add_argument(
         '-continuous', dest='continuous',
-        action='store_true', default=False, type=bool)
+        action='store_true', default=False,
+        help='Continuous run flag')
     parser.add_argument(
         '-sampling-interval', dest='sampling_interval',
         action='store', default=-1, type=int,
@@ -65,8 +66,8 @@ if __name__ == '__main__':
     args = get_args()
     model = torch.load(args.model)
 
+    sampling_countdown = -1
     while True:
-
         with Plugin() as plugin:
             with Camera(args.stream) as camera:
                 sample = camera.snapshot()
