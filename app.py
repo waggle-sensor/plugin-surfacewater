@@ -1,6 +1,10 @@
+
 import torch
 from torchvision import transforms
 
+import time
+import cv2
+from PIL import Image
 import argparse
 
 from waggle.plugin import Plugin
@@ -39,7 +43,8 @@ def run(model, sample, do_sampling, plugin):
     image = image[250:850, 300:1200]
     timestamp = sample.timestamp
 
-    transformation = transforms.Compose([transforms.Resize((224,224)),
+    transformation = transforms.Compose([transforms.ToPILImage(),
+                                         transforms.Resize((224,224)),
                                          transforms.ToTensor()])
     img = transformation(image).unsqueeze(0)
     img = img.to(device='cpu')
@@ -54,7 +59,7 @@ def run(model, sample, do_sampling, plugin):
         print('water')
 
     plugin.publish(TOPIC_SURFACEWATER, result.item(), timestamp=timestamp)
-    print(f"Standing Water: {result} at time: {timestamp}")
+    print(f"Standing Water: {result.item()} at time: {timestamp}")
 
     if do_sampling:
         cv2.imwrite('street.jpg', image)
@@ -67,6 +72,9 @@ if __name__ == '__main__':
     model = torch.load(args.model)
 
     sampling_countdown = -1
+    if args.sampling_interval >= 0:
+        sampling_countdown = args.sampling_interval
+
     while True:
         with Plugin() as plugin:
             with Camera(args.stream) as camera:
@@ -76,9 +84,10 @@ if __name__ == '__main__':
             if sampling_countdown > 0:
                 sampling_countdown -= 1
             elif sampling_countdown == 0:
+                print('here')
                 do_sampling = True
                 sampling_countdown = args.sampling_interval
 
             run(model, sample, do_sampling, plugin)
-            if not continuous:
+            if not args.continuous:
                 exit(0)   ## oneshot
