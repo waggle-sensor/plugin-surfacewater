@@ -40,6 +40,7 @@ def get_args():
 
 def run(model, sample, do_sampling, plugin):
     image = sample.data
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     image = image[250:850, 300:1200]
     timestamp = sample.timestamp
 
