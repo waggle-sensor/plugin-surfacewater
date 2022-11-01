@@ -40,7 +40,6 @@ def get_args():
 
 def run(model, sample, do_sampling, plugin):
     image = sample.data
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     image = image[250:850, 300:1200]
     timestamp = sample.timestamp
 
@@ -63,7 +62,8 @@ def run(model, sample, do_sampling, plugin):
     print(f"Standing Water: {result.item()} at time: {timestamp}")
 
     if do_sampling:
-        cv2.imwrite('street.jpg', image)
+        sample.data = image
+        sample.save('street.jpg')
         plugin.upload_file('street.jpg')
         print('saved')
 
