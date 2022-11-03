@@ -86,8 +86,8 @@ def train(args):
                       train_loss=running_loss/print_every,
                       test_loss=test_loss/len(valloader),
                       test_accuracy=accuracy/len(valloader),
-                      output=logps.tolist(),
-                      label=labels.item(),
+                      # output=logps.tolist(),
+                      # label=labels.cpu().detach().numpy().tolist(),
                 )
                 print(json.dumps(stats))
                 print(json.dumps(stats), file=stats_file)
