@@ -20,7 +20,7 @@ def get_args():
         help='ID or name of a stream, e.g. sample')
     parser.add_argument(
         '-model', dest='model',
-        action='store', required=True,
+        action='store', default='model.pth',
         help='Path to model')
     parser.add_argument(
         '-continuous', dest='continuous',
@@ -47,7 +47,10 @@ def run(model, sample, do_sampling, plugin):
                                          transforms.Resize((224,224)),
                                          transforms.ToTensor()])
     img = transformation(image).unsqueeze(0)
-    img = img.to(device='cpu')
+    if args.device == 'cpu':
+        img = img.to(device='cpu')
+    elif args.device == 'cuda':
+        img = img.to(device='cuda')
     pred = model(img)
 
     #prob = torch.sigmoid(pred).squeeze(0)
@@ -63,14 +66,20 @@ def run(model, sample, do_sampling, plugin):
 
     if do_sampling:
         sample.data = image
-        sample.save('street.jpg')
-        plugin.upload_file('street.jpg')
+        sample.save('sample.jpg')
+        plugin.upload_file('sample.jpg')
         print('saved')
 
 
 if __name__ == '__main__':
     args = get_args()
-    model = torch.load(args.model)
+    if torch.cuda.is_available():
+        args.device = 'cuda'
+        model = torch.load(args.model, map_location='cuda')
+    else:
+        args.device = 'cpu'
+        model = torch.load(args.model, map_location='cpu')
+    model.eval()
 
     sampling_countdown = -1
     if args.sampling_interval >= 0:
