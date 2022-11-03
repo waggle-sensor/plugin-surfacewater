@@ -1,6 +1,6 @@
 name: "surface-water-classifier"
 namespace: "waggle"
-version: "0.0.4"
+version: "0.0.5"
 description: "Surface Water Classifier"
 authors: "Seongha Park <seongha.park@anl.gov>"
 collaborators: "Waggle Team <https://wa8.gl>"
