@@ -77,9 +77,8 @@ if __name__ == '__main__':
         sampling_countdown = args.sampling_interval
 
     while True:
-        with Plugin() as plugin:
-            with Camera(args.stream) as camera:
-                sample = camera.snapshot()
+        with Plugin() as plugin, Camera(args.stream) as camera:
+            sample = camera.snapshot()
 
             do_sampling = False
             if sampling_countdown > 0:
