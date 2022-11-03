@@ -1,1 +1,1 @@
-# surface-water-classifier
+# plugin-surfacewater
