@@ -1,4 +1,4 @@
-name: "surface_water_classifier"
+name: "surface-water-classifier"
 namespace: "waggle"
 version: "0.0.4"
 description: "Surface Water Classifier"
